@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import loadings
 
 
 def terminate():
@@ -8,10 +9,31 @@ def terminate():
     sys.exit()
 
 
-def load_image(name):
-    fullname = os.path.join('Images', name)
-    im = pygame.image.load(fullname)
-    return im
+class MainMenu:
+    pass
+
+
+class Room:
+    def __init__(self, name):
+        self.map = loadings.load_map(name)
+        self.width = self.map.width
+        self.height = self.map.height
+        self.tile_width = self.map.tilewidth
+        self.tile_height = self.map.tileheight
+
+    def render(self):
+        for y in range(self.height):
+            for x in range(self.width):
+                im = self.map.get_tile_image(x, y, 0)
+
+
+class Enemy:
+    pass
+
+
+class MainHero:
+    def __init__(self):
+        pass
 
 
 if __name__ == '__main__':
