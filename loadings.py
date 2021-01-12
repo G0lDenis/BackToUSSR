@@ -4,12 +4,12 @@ import pytmx
 import os
 
 
-def load_file(name):
-    return os.path.join(name, 'Images')
+def load_map_name(name):
+    return os.path.join('Maps', name)
 
 
 def load_image(name):
-    fullname = load_file(name)
+    fullname = os.path.join('Images', name)
     im = pygame.image.load(fullname)
     return im
 
@@ -22,5 +22,5 @@ def load_results():
 
 
 def load_map(map_name):
-    map = pytmx.load_pygame(load_file(map_name))
+    map = pytmx.load_pygame(load_map_name(map_name))
     return map
