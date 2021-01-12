@@ -1,6 +1,5 @@
 import pygame
 import sys
-import os
 import loadings
 
 
@@ -44,9 +43,11 @@ class Enemy:
     pass
 
 
-class MainHero:
+class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
+        super().__init__()
         self.pos = pos
+        self.side = 'right'
 
     def render(self):
         center = self.pos[0] * room.tile_width + room.tile_width // 2, self.pos[
@@ -67,12 +68,16 @@ class Game:
         next_x, next_y = self.hero.pos
         if pygame.key.get_pressed()[pygame.K_LEFT]:
             next_x -= 1
+            self.hero.side = 'left'
         if pygame.key.get_pressed()[pygame.K_RIGHT]:
             next_x += 1
+            self.hero.side = 'right'
         if pygame.key.get_pressed()[pygame.K_UP]:
             next_y -= 1
+            self.hero.side = 'up'
         if pygame.key.get_pressed()[pygame.K_DOWN]:
             next_y += 1
+            self.hero.side = 'down'
         if self.room.is_free((next_x, next_y)):
             self.hero.pos = (next_x, next_y)
 
@@ -83,7 +88,6 @@ if __name__ == '__main__':
     size = width, height = 1024, 768
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Back To USSR')
-    all_sprites = pygame.sprite.Group()
     room = Room('f-r.tmx', [1])
     hero = MainHero((0, 3))
     game = Game(room, hero)
