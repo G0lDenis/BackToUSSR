@@ -3,8 +3,7 @@ import sys
 import pygame_gui
 import pygame
 import pygame_widgets as pw
-from main import run_game
-from main import run_settings
+
 
 
 def terminate():
@@ -35,7 +34,7 @@ button_settings = pw.Button(
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: run_settings(),
+    onClick=lambda: settings(),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,
