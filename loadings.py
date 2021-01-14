@@ -1,11 +1,6 @@
 import csv
 import pygame
-import pytmx
 import os
-
-
-def load_map_name(name):
-    return os.path.join('Maps', name)
 
 
 def load_image(name):
@@ -22,5 +17,8 @@ def load_results():
 
 
 def load_map(map_name):
-    map = pytmx.load_pygame(load_map_name(map_name))
-    return map
+    txt_way = os.path.join('Maps', map_name)
+    with open(txt_way, 'r', encoding='utf-8') as file:
+        reader = csv.reader(file, delimiter=',', quotechar='"')
+        data = [list(map(int, i[0].split())) for i in list(reader)]
+    return data
