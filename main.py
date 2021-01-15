@@ -57,6 +57,7 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.pos = pos
+        self.rect = pygame.Rect(*pos, 32, 32)
         self.side = 'right'
         self.cur_frame = 0
         self.frames = []
@@ -74,6 +75,9 @@ class MainHero(pygame.sprite.Sprite):
 
     def update_hero(self):
         next_x, next_y = 0, 0
+        self.image = self.frames[self.cur_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rotate_image(pygame.mouse.get_pos())
         if pygame.key.get_pressed()[pygame.K_a]:
             next_x -= 9
             self.side = 'left'
@@ -96,16 +100,37 @@ class MainHero(pygame.sprite.Sprite):
             self.cur_frame = 0
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
-            self.rect = self.rect.move(-next_x, -next_y)
-        self.rotate_image(pygame.mouse.get_pos())
-        self.image.set_colorkey((255, 255, 255))
+            while pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
+                if next_x < 0:
+                    self.rect = self.rect.move(1, 0)
+                elif next_x > 0:
+                    self.rect = self.rect.move(-1, 0)
+                if next_y < 0:
+                    self.rect = self.rect.move(0, 1)
+                elif next_y > 0:
+                    self.rect = self.rect.move(0, -1)
+                else:
+                    self.rect = self.rect.move(0, 1)
+                    if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
+                        self.rect = self.rect.move(0, -2)
+                if not next_x:
+                    for i, j in (0, 0), (1, 0), (-2, 0), (0, 1), (0, -2), (1, 0), (1, 0), (0, 2), (-1, -1):
+                        self.rect = self.rect.move(i, j)
+                        if pygame.sprite.spritecollideany(self, obstacles) is None and self.in_field():
+                            break
         self.moving = False
 
     def in_field(self):
-        pass
+        if self.rect.x < 0 or self.rect.x + self.rect.w > 1024 or \
+                self.rect.y < 0 or self.rect.y + self.rect.h > 768:
+            return False
+        return True
 
     def rotate_image(self, pos):
-        pass
+        rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
+        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        self.image = pygame.transform.rotate(self.image, int(angle))
+        self.rect = self.image.get_rect(center=self.rect.center)
 
 
 class Game:
@@ -128,7 +153,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     room = Room('f-r.txt')
-    hero = MainHero((0, 3 * room.tile_height))
+    hero = MainHero((2 * room.tile_width, 2 * room.tile_height))
     game = Game(room, hero)
     pygame.display.flip()
     clock = pygame.time.Clock()
