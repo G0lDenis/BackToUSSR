@@ -3,7 +3,7 @@ import sys
 import loadings
 import sqlite3
 import os
-from copy import copy
+import math
 
 
 def terminate():
@@ -61,10 +61,8 @@ class MainHero(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.frames = []
         self.cut_sheet(loadings.load_image('main_hero_sp.png'))
-        all_sprites.add(self)
         self.moving = False
-
-
+        all_sprites.add(self)
 
     def cut_sheet(self, sheet):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // 3,
@@ -92,13 +90,22 @@ class MainHero(pygame.sprite.Sprite):
             next_y += 9
             self.side = 'down'
             self.moving = True
-        print(self.rect)
+        if self.moving:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        else:
+            self.cur_frame = 0
         self.rect = self.rect.move(next_x, next_y)
-        print(self.rect)
-        print(pygame.sprite.spritecollideany(self, obstacles))
-        if pygame.sprite.spritecollideany(self, obstacles) is not None:
-            print('+++++++++')
+        if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
             self.rect = self.rect.move(-next_x, -next_y)
+        self.rotate_image(pygame.mouse.get_pos())
+        self.image.set_colorkey((255, 255, 255))
+        self.moving = False
+
+    def in_field(self):
+        pass
+
+    def rotate_image(self, pos):
+        pass
 
 
 class Game:
@@ -109,7 +116,6 @@ class Game:
     def render(self):
         self.hero.update_hero()
         self.room.render()
-
         all_sprites.draw(screen)
 
 
