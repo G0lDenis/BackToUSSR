@@ -57,13 +57,13 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.pos = pos
-        self.rect = pygame.Rect(*pos, 32, 32)
         self.side = 'right'
         self.cur_frame = 0
         self.frames = []
         self.cut_sheet(loadings.load_image('main_hero_sp.png'))
         self.moving = False
         all_sprites.add(self)
+        self.mask = None
 
     def cut_sheet(self, sheet):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // 3,
@@ -76,8 +76,9 @@ class MainHero(pygame.sprite.Sprite):
     def update_hero(self):
         next_x, next_y = 0, 0
         self.image = self.frames[self.cur_frame]
-        self.mask = pygame.mask.from_surface(self.image)
         self.rotate_image(pygame.mouse.get_pos())
+        self.image.set_colorkey((255, 255, 255))
+        self.mask = pygame.mask.from_surface(self.image)
         if pygame.key.get_pressed()[pygame.K_a]:
             next_x -= 9
             self.side = 'left'
@@ -100,24 +101,7 @@ class MainHero(pygame.sprite.Sprite):
             self.cur_frame = 0
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
-            while pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
-                if next_x < 0:
-                    self.rect = self.rect.move(1, 0)
-                elif next_x > 0:
-                    self.rect = self.rect.move(-1, 0)
-                if next_y < 0:
-                    self.rect = self.rect.move(0, 1)
-                elif next_y > 0:
-                    self.rect = self.rect.move(0, -1)
-                else:
-                    self.rect = self.rect.move(0, 1)
-                    if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
-                        self.rect = self.rect.move(0, -2)
-                if not next_x:
-                    for i, j in (0, 0), (1, 0), (-2, 0), (0, 1), (0, -2), (1, 0), (1, 0), (0, 2), (-1, -1):
-                        self.rect = self.rect.move(i, j)
-                        if pygame.sprite.spritecollideany(self, obstacles) is None and self.in_field():
-                            break
+            self.rect = self.rect.move(-next_x, -next_y)
         self.moving = False
 
     def in_field(self):
@@ -134,14 +118,30 @@ class MainHero(pygame.sprite.Sprite):
 
 
 class Game:
-    def __init__(self, room, hero):
-        self.room = room
-        self.hero = hero
+    def __init__(self, in_room, in_hero):
+        self.room = in_room
+        self.hero = in_hero
 
     def render(self):
         self.hero.update_hero()
         self.room.render()
+        for sprite in all_sprites:
+            camera.apply(sprite)
         all_sprites.draw(screen)
+
+
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 if __name__ == '__main__':
@@ -153,14 +153,16 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     room = Room('f-r.txt')
-    hero = MainHero((2 * room.tile_width, 2 * room.tile_height))
+    hero = MainHero((0, 3 * room.tile_height))
     game = Game(room, hero)
     pygame.display.flip()
     clock = pygame.time.Clock()
+    camera = Camera()
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 terminate()
+        camera.update(hero)
         screen.fill((0, 0, 0))
         game.render()
         pygame.display.flip()
