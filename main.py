@@ -71,8 +71,8 @@ class Bullet(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
-        self.image = pygame.Surface((5, 5))
-        self.image.fill('yellow')
+        self.image = pygame.Surface((7, 5))
+        self.image.fill('#c9b500')
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
@@ -82,27 +82,35 @@ class Bullet(pygame.sprite.Sprite):
             self.speed_x = 10
         else:
             self.speed_x = -10
+        self.speed_y = 0
         self.weapon = weapon
         self.find_path()
 
     def update(self):
         self.rect.y += self.speed_y
         self.rect.x += self.speed_x
-        square_go_x = math.fabs(self.rect.x - self.dest_x) ** 2
-        square_go_y = math.fabs(self.rect.y - self.dest_y) ** 2
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width():
+        square_go_x = math.fabs(self.rect.x - self.x) ** 2
+        square_go_y = math.fabs(self.rect.y - self.y) ** 2
+        go = math.sqrt(square_go_x + square_go_y)
+        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() and go < self.weapon.radius:
             print('kill')
             self.kill()
 
     def find_path(self):
         len_x = self.dest_x - self.x
         len_y = self.dest_y - self.y
-        points_up = len_x // self.speed_x
-        if points_up != 0:
-            self.speed_y = len_y / points_up
-        else:
+        if len_x == 0:
             self.speed_x = 0
-        print(self.speed_y)
+        elif len_y == 0:
+            self.speed_y = 0
+        else:
+            print(len_x, self.speed_x, len_x // self.speed_x)
+            points_up = len_x // self.speed_x
+            if points_up != 0:
+                self.speed_y = len_y / points_up
+            else:
+                points_up += 1
+                self.speed_y = len_y / points_up
 
 
 class MainHero(pygame.sprite.Sprite):
@@ -170,7 +178,7 @@ class MainHero(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def shoot(self, go_to):
-        bullet = Bullet(self.rect.centerx, self.rect.top, hero.weapons[hero.slot_number], go_to[0], go_to[1])
+        bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], go_to[0], go_to[1])
         all_sprites.add(bullet)
         bullets.add(bullet)
 
@@ -184,14 +192,13 @@ class Game:
         self.hero.update_hero()
         for i in bullets:
             i.update()
-        print(bullets)
         self.room.render()
         all_sprites.draw(screen)
 
 
 if __name__ == '__main__':
     pygame.init()
-    FPS = 10
+    FPS = 20
     size = width, height = 1024, 768
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Back To USSR')
