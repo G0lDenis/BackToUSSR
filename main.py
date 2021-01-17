@@ -92,7 +92,7 @@ class Bullet(pygame.sprite.Sprite):
 class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.weapons = [Weapon('simple pistol', 10, 200, loadings.load_image('default_pistol.png'), 15)]
+        self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10)]
         self.slot_number = 0
         self.pos = pos
         self.cur_frame = 0
@@ -101,6 +101,7 @@ class MainHero(pygame.sprite.Sprite):
         self.moving = False
         all_sprites.add(self)
         self.mask = None
+        self.hp = 100
 
     def cut_sheet(self, sheet):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // 3,
@@ -113,16 +114,16 @@ class MainHero(pygame.sprite.Sprite):
     def update_hero(self):
         next_x, next_y = 0, 0
         if pygame.key.get_pressed()[pygame.K_a]:
-            next_x -= 9
+            next_x -= 5
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_d]:
-            next_x += 9
+            next_x += 5
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_w]:
-            next_y -= 9
+            next_y -= 5
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_s]:
-            next_y += 9
+            next_y += 5
             self.moving = True
         if self.moving:
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
@@ -130,9 +131,11 @@ class MainHero(pygame.sprite.Sprite):
             self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
         self.rotate_image(pygame.mouse.get_pos())
+        self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles) is not None:
+            print(self.rect)
             self.rect = self.rect.move(-next_x, -next_y)
         self.moving = False
 
@@ -150,7 +153,7 @@ class MainHero(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
                             delta_y / rad)
             all_sprites.add(bullet)
-            bullets.add(bullet)
+            hero_bullets.add(bullet)
 
 
 class Game:
@@ -160,13 +163,20 @@ class Game:
 
     def render(self):
         self.hero.update_hero()
-        for i in bullets:
+        for i in hero_bullets:
             i.update()
         self.room.render()
         for sprite in all_sprites:
             camera.apply(sprite)
         all_sprites.draw(screen)
+        draw_hp(screen)
         invent.draw(screen)
+
+
+def draw_hp(in_screen):
+    pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
+    pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, hero.hp * 2, 40))
+    pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, 200, 40), 3)
 
 
 class Camera:
@@ -180,23 +190,23 @@ class Camera:
 
     def update(self, target):
         if target.rect.x < 64:
-            target.rect.x = 64
+            target.rect.x = 65
         if target.rect.y < 64:
-            target.rect.y = 64
+            target.rect.y = 65
         self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 if __name__ == '__main__':
     pygame.init()
-    FPS = 10
+    FPS = 20
     size = width, height = 1024, 768
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Back To USSR')
     all_sprites = pygame.sprite.Group()
     cells = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
-    bullets = pygame.sprite.Group()
+    hero_bullets = pygame.sprite.Group()
     invent = pygame.sprite.Group()
     room = Room('f-r.txt')
     hero = MainHero((0, 3 * room.tile_height))
