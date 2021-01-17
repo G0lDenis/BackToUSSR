@@ -37,6 +37,8 @@ class Room:
                 all_sprites.add(cell)
                 if not self.sl[self.map[y][x]][1]:
                     obstacles.add(cell)
+                else:
+                    cells.add(cell)
 
     def render(self):
         pass
@@ -54,70 +56,45 @@ class Enemy:
 
 
 class Weapon:
-    def __init__(self, name, damage, radius, img_path):
+    def __init__(self, name, damage, radius, img, velocity):
         self.name = name
         self.damage = damage
         self.radius = radius
-        im = pygame.image.load(img_path)
+        self.velocity = velocity
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = im
+        self.spr.image = img
         self.spr.rect = self.spr.image.get_rect()
         invent.add(self.spr)
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, weapon, dest_x, dest_y):
-        pygame.sprite.Sprite.__init__(self)
-        self.x = x
-        self.y = y
+    def __init__(self, x, y, weapon, cos, sin):
+        super().__init__()
+        self.cos = cos
+        self.sin = sin
         self.image = pygame.Surface((7, 5))
         self.image.fill('#c9b500')
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
-        self.dest_x = dest_x
-        self.dest_y = dest_y
-        if dest_x > hero.rect.x:
-            self.speed_x = 10
-        else:
-            self.speed_x = -10
-        self.speed_y = 0
         self.weapon = weapon
-        self.find_path()
+        self.distance = 0
 
     def update(self):
-        self.rect.y += self.speed_y
-        self.rect.x += self.speed_x
-        square_go_x = math.fabs(self.rect.x - self.x) ** 2
-        square_go_y = math.fabs(self.rect.y - self.y) ** 2
-        go = math.sqrt(square_go_x + square_go_y)
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() or go > self.weapon.radius:
+        self.rect.y += int(self.weapon.velocity * self.sin)
+        self.rect.x += int(self.weapon.velocity * self.cos)
+        self.distance += self.weapon.velocity
+        if pygame.sprite.spritecollideany(self, obstacles) or self.distance > self.weapon.radius:
             self.kill()
-
-    def find_path(self):
-        len_x = self.dest_x - self.x
-        len_y = self.dest_y - self.y
-        if len_x == 0:
-            self.speed_x = 0
-        elif len_y == 0:
-            self.speed_y = 0
-        else:
-            points_up = len_x // self.speed_x
-            if points_up != 0:
-                self.speed_y = len_y / points_up
-            else:
-                points_up += 1
-                self.speed_y = len_y / points_up
 
 
 class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.weapons = [Weapon('simple pistol', 10, 200, 'Images/default_pistol.png')]
+        self.weapons = [Weapon('simple pistol', 10, 200, loadings.load_image('default_pistol.png'), 15)]
         self.slot_number = 0
         self.pos = pos
-        self.side = 'right'
         self.cur_frame = 0
         self.frames = []
         self.cut_sheet(loadings.load_image('main_hero_sp.png'))
@@ -135,40 +112,29 @@ class MainHero(pygame.sprite.Sprite):
 
     def update_hero(self):
         next_x, next_y = 0, 0
-        self.image = self.frames[self.cur_frame]
-        self.rotate_image(pygame.mouse.get_pos())
-        self.image.set_colorkey((255, 255, 255))
-        self.mask = pygame.mask.from_surface(self.image)
         if pygame.key.get_pressed()[pygame.K_a]:
             next_x -= 9
-            self.side = 'left'
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_d]:
             next_x += 9
-            self.side = 'right'
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_w]:
             next_y -= 9
-            self.side = 'up'
             self.moving = True
         if pygame.key.get_pressed()[pygame.K_s]:
             next_y += 9
-            self.side = 'down'
             self.moving = True
         if self.moving:
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         else:
             self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rotate_image(pygame.mouse.get_pos())
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
-        if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
+        if pygame.sprite.spritecollideany(self, obstacles) is not None:
             self.rect = self.rect.move(-next_x, -next_y)
         self.moving = False
-
-    def in_field(self):
-        if self.rect.x < 0 or self.rect.x + self.rect.w > 1024 or \
-                self.rect.y < 0 or self.rect.y + self.rect.h > 768:
-            return False
-        return True
 
     def rotate_image(self, pos):
         rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
@@ -177,9 +143,14 @@ class MainHero(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def shoot(self, go_to):
-        bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], go_to[0], go_to[1])
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+        delta_x = go_to[0] - self.rect.x
+        delta_y = go_to[1] - self.rect.y
+        rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
+        if delta_x and delta_y:
+            bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
+                            delta_y / rad)
+            all_sprites.add(bullet)
+            bullets.add(bullet)
 
 
 class Game:
@@ -208,6 +179,10 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target):
+        if target.rect.x < 64:
+            target.rect.x = 64
+        if target.rect.y < 64:
+            target.rect.y = 64
         self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
@@ -219,6 +194,7 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Back To USSR')
     all_sprites = pygame.sprite.Group()
+    cells = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     invent = pygame.sprite.Group()
