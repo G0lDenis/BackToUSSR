@@ -25,8 +25,8 @@ class Room:
         self.load_sql()
         self.width = 32
         self.height = 24
-        self.tile_width = 32
-        self.tile_height = 32
+        self.tile_width = 64
+        self.tile_height = 64
         self.show()
 
     def show(self):
@@ -62,7 +62,7 @@ class Weapon:
         self.spr = pygame.sprite.Sprite()
         self.spr.image = im
         self.spr.rect = self.spr.image.get_rect()
-        all_sprites.add(self.spr)
+        invent.add(self.spr)
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
 
 
@@ -92,8 +92,7 @@ class Bullet(pygame.sprite.Sprite):
         square_go_x = math.fabs(self.rect.x - self.x) ** 2
         square_go_y = math.fabs(self.rect.y - self.y) ** 2
         go = math.sqrt(square_go_x + square_go_y)
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() and go < self.weapon.radius:
-            print('kill')
+        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() or go > self.weapon.radius:
             self.kill()
 
     def find_path(self):
@@ -104,7 +103,6 @@ class Bullet(pygame.sprite.Sprite):
         elif len_y == 0:
             self.speed_y = 0
         else:
-            print(len_x, self.speed_x, len_x // self.speed_x)
             points_up = len_x // self.speed_x
             if points_up != 0:
                 self.speed_y = len_y / points_up
@@ -125,6 +123,7 @@ class MainHero(pygame.sprite.Sprite):
         self.cut_sheet(loadings.load_image('main_hero_sp.png'))
         self.moving = False
         all_sprites.add(self)
+        self.mask = None
 
     def cut_sheet(self, sheet):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // 3,
@@ -136,7 +135,10 @@ class MainHero(pygame.sprite.Sprite):
 
     def update_hero(self):
         next_x, next_y = 0, 0
-
+        self.image = self.frames[self.cur_frame]
+        self.rotate_image(pygame.mouse.get_pos())
+        self.image.set_colorkey((255, 255, 255))
+        self.mask = pygame.mask.from_surface(self.image)
         if pygame.key.get_pressed()[pygame.K_a]:
             next_x -= 9
             self.side = 'left'
@@ -160,9 +162,6 @@ class MainHero(pygame.sprite.Sprite):
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles) is not None or not self.in_field():
             self.rect = self.rect.move(-next_x, -next_y)
-        self.image = self.frames[self.cur_frame]
-        self.rotate_image(pygame.mouse.get_pos())
-        self.image.set_colorkey((255, 255, 255))
         self.moving = False
 
     def in_field(self):
@@ -184,38 +183,58 @@ class MainHero(pygame.sprite.Sprite):
 
 
 class Game:
-    def __init__(self, room, hero):
-        self.room = room
-        self.hero = hero
+    def __init__(self, in_room, in_hero):
+        self.room = in_room
+        self.hero = in_hero
 
     def render(self):
         self.hero.update_hero()
         for i in bullets:
             i.update()
         self.room.render()
+        for sprite in all_sprites:
+            camera.apply(sprite)
         all_sprites.draw(screen)
+        invent.draw(screen)
+
+
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 if __name__ == '__main__':
     pygame.init()
-    FPS = 20
+    FPS = 10
     size = width, height = 1024, 768
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Back To USSR')
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    invent = pygame.sprite.Group()
     room = Room('f-r.txt')
     hero = MainHero((0, 3 * room.tile_height))
     game = Game(room, hero)
     pygame.display.flip()
     clock = pygame.time.Clock()
+    camera = Camera()
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 terminate()
             elif ev.type == pygame.MOUSEBUTTONDOWN:
                 hero.shoot(pygame.mouse.get_pos())
+        camera.update(hero)
         screen.fill((0, 0, 0))
         game.render()
         pygame.display.flip()
