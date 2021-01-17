@@ -25,8 +25,8 @@ class Room:
         self.load_sql()
         self.width = 32
         self.height = 24
-        self.tile_width = 32
-        self.tile_height = 32
+        self.tile_width = 64
+        self.tile_height = 64
         self.show()
 
     def show(self):
@@ -62,7 +62,7 @@ class Weapon:
         self.spr = pygame.sprite.Sprite()
         self.spr.image = im
         self.spr.rect = self.spr.image.get_rect()
-        all_sprites.add(self.spr)
+        invent.add(self.spr)
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
 
 
@@ -92,8 +92,7 @@ class Bullet(pygame.sprite.Sprite):
         square_go_x = math.fabs(self.rect.x - self.x) ** 2
         square_go_y = math.fabs(self.rect.y - self.y) ** 2
         go = math.sqrt(square_go_x + square_go_y)
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() and go < self.weapon.radius:
-            print('kill')
+        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > screen.get_height() or self.rect.left > screen.get_width() or go > self.weapon.radius:
             self.kill()
 
     def find_path(self):
@@ -104,7 +103,6 @@ class Bullet(pygame.sprite.Sprite):
         elif len_y == 0:
             self.speed_y = 0
         else:
-            print(len_x, self.speed_x, len_x // self.speed_x)
             points_up = len_x // self.speed_x
             if points_up != 0:
                 self.speed_y = len_y / points_up
@@ -177,10 +175,6 @@ class MainHero(pygame.sprite.Sprite):
         angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
         self.image = pygame.transform.rotate(self.image, int(angle))
         self.rect = self.image.get_rect(center=self.rect.center)
-        rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
-        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-        self.image = pygame.transform.rotate(self.image, int(angle))
-        self.rect = self.image.get_rect(center=self.rect.center)
 
     def shoot(self, go_to):
         bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], go_to[0], go_to[1])
@@ -201,6 +195,7 @@ class Game:
         for sprite in all_sprites:
             camera.apply(sprite)
         all_sprites.draw(screen)
+        invent.draw(screen)
 
 
 class Camera:
@@ -226,6 +221,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    invent = pygame.sprite.Group()
     room = Room('f-r.txt')
     hero = MainHero((0, 3 * room.tile_height))
     game = Game(room, hero)
