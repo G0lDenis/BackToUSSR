@@ -77,6 +77,9 @@ class Weapon:
         droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
         invent.remove(hero.weapons[hero.slot_number].spr)
 
+    def draw(self):
+        pass
+
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, weapon, cos, sin):
