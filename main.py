@@ -73,8 +73,10 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__()
         self.cos = cos
         self.sin = sin
-        self.image = pygame.Surface((7, 5))
-        self.image.fill('#c9b500')
+        self.image = pygame.Surface((6, 6))
+        pygame.draw.circle(self.image, '#c9b500', (3, 3), 3)
+        self.image.set_colorkey((0, 0, 0))
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
@@ -85,7 +87,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += int(self.weapon.velocity * self.sin)
         self.rect.x += int(self.weapon.velocity * self.cos)
         self.distance += self.weapon.velocity
-        if pygame.sprite.spritecollideany(self, obstacles) or self.distance > self.weapon.radius:
+        if pygame.sprite.spritecollideany(self, obstacles,
+                                          collided=pygame.sprite.collide_mask) or self.distance > self.weapon.radius:
             self.kill()
 
 
@@ -134,15 +137,14 @@ class MainHero(pygame.sprite.Sprite):
         self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
-        if pygame.sprite.spritecollideany(self, obstacles) is not None:
-            print(self.rect)
+        if pygame.sprite.spritecollideany(self, obstacles, collided=pygame.sprite.collide_mask) is not None:
             self.rect = self.rect.move(-next_x, -next_y)
         self.moving = False
 
     def rotate_image(self, pos):
         rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
         angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-        self.image = pygame.transform.rotate(self.image, int(angle))
+        self.image = pygame.transform.rotate(self.image, angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def shoot(self, go_to):
@@ -174,7 +176,7 @@ class Game:
 
 
 def draw_hp(in_screen):
-    pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
+    #pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
     pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, hero.hp * 2, 40))
     pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, 200, 40), 3)
 
@@ -193,8 +195,19 @@ class Camera:
             target.rect.x = 65
         if target.rect.y < 64:
             target.rect.y = 65
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        l_u_cell = obstacles.sprites()[0]
+        r_d_cell = obstacles.sprites()[107]
+        print(l_u_cell.rect, r_d_cell.rect)
+        if (l_u_cell.rect.x >= 0 and 0 <= target.rect.x < width // 2) or \
+                (r_d_cell.rect.x <= room.width * room.tile_width and 0 <= target.rect.x < width // 2 - target.rect.w):
+            self.dx = 0
+        else:
+            self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        if (l_u_cell.rect.y >= 0 and 0 <= target.rect.y < height // 2) or \
+                (r_d_cell.rect.y <= room.height * room.tile_height and 0 <= target.rect.y < height // 2 - target.rect.h):
+            self.dy = 0
+        else:
+            self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 if __name__ == '__main__':
