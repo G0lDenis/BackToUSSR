@@ -176,7 +176,7 @@ class Game:
 
 
 def draw_hp(in_screen):
-    #pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
+    # pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
     pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, hero.hp * 2, 40))
     pygame.draw.rect(in_screen, (204, 0, 0), (300, 688, 200, 40), 3)
 
@@ -196,15 +196,15 @@ class Camera:
         if target.rect.y < 64:
             target.rect.y = 65
         l_u_cell = obstacles.sprites()[0]
-        r_d_cell = obstacles.sprites()[107]
-        print(l_u_cell.rect, r_d_cell.rect)
-        if (l_u_cell.rect.x >= 0 and 0 <= target.rect.x < width // 2) or \
-                (r_d_cell.rect.x <= room.width * room.tile_width and 0 <= target.rect.x < width // 2 - target.rect.w):
+        r_d_cell = obstacles.sprites()[115]
+        if (l_u_cell.rect.x >= 0 and target.rect.x < width // 2) or \
+                (r_d_cell.rect.x <= width - r_d_cell.rect.w):
             self.dx = 0
         else:
             self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        if (l_u_cell.rect.y >= 0 and 0 <= target.rect.y < height // 2) or \
-                (r_d_cell.rect.y <= room.height * room.tile_height and 0 <= target.rect.y < height // 2 - target.rect.h):
+
+        if (l_u_cell.rect.y >= 0 and target.rect.y < height // 2) or \
+                (r_d_cell.rect.y <= height - r_d_cell.rect.h):
             self.dy = 0
         else:
             self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
