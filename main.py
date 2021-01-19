@@ -11,6 +11,12 @@ def terminate():
     sys.exit()
 
 
+def collide_with_mask(spr1, spr2):
+    if pygame.sprite.collide_mask(spr1, spr2):
+        return True
+    return False
+
+
 class Cell(pygame.sprite.Sprite):
     def __init__(self, im, x, y, w, h):
         super().__init__()
@@ -47,8 +53,8 @@ class Room:
         con = sqlite3.connect(os.path.join('Maps', 'maps.db'))
         cur = con.cursor()
         data = cur.execute('''select * from maps''')
-        for i in data:
-            self.sl[i[0]] = [i[1], i[2]]
+        for dat in data:
+            self.sl[dat[0]] = [dat[1], dat[2]]
 
 
 class Enemy:
@@ -61,12 +67,12 @@ class Weapon:
         self.damage = damage
         self.radius = radius
         self.velocity = velocity
+        self.img = img
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = img
+        self.spr.image = self.img
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
-        invent.add(self.spr)
-        im = pygame.transform.scale(img, (img.get_width() // 5, img.get_height() // 5))
+        im = pygame.transform.scale(self.img, (self.img.get_width() // 5, self.img.get_height() // 5))
         self.sm_spr = pygame.sprite.Sprite()
         self.sm_spr.image = im
         self.sm_spr.rect = self.spr.image.get_rect()
@@ -78,7 +84,7 @@ class Weapon:
         invent.remove(hero.weapons[hero.slot_number].spr)
 
     def draw(self):
-        pass
+        invent.add(self.spr)
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -101,14 +107,15 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += int(self.weapon.velocity * self.cos)
         self.distance += self.weapon.velocity
         if pygame.sprite.spritecollideany(self, obstacles,
-                                          collided=pygame.sprite.collide_mask) or self.distance > self.weapon.radius:
+                                          collided=collide_with_mask) or self.distance > self.weapon.radius:
             self.kill()
 
 
 class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10)]
+        self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
+                        Weapon('AK-47', 10, 200, loadings.load_image('ak-47.png'), 20)]
         self.slot_number = 0
         self.pos = pos
         self.side = 'right'
@@ -151,7 +158,7 @@ class MainHero(pygame.sprite.Sprite):
         self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
-        if pygame.sprite.spritecollideany(self, obstacles, collided=pygame.sprite.collide_mask) is not None:
+        if pygame.sprite.spritecollideany(self, obstacles, collided=collide_with_mask) is not None:
             self.rect = self.rect.move(-next_x, -next_y)
         self.moving = False
 
@@ -179,8 +186,8 @@ class Game:
 
     def render(self):
         self.hero.update_hero()
-        for i in hero_bullets:
-            i.update()
+        for bull in hero_bullets:
+            bull.update()
         self.room.render()
         for sprite in all_sprites:
             camera.apply(sprite)
@@ -240,6 +247,7 @@ if __name__ == '__main__':
     hero = MainHero((0, 3 * room.tile_height))
     game = Game(room, hero)
     pygame.display.flip()
+    hero.weapons[hero.slot_number].draw()
     clock = pygame.time.Clock()
     camera = Camera()
     while True:
