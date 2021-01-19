@@ -115,7 +115,7 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 10, 200, loadings.load_image('ak-47.png'), 20)]
+                        Weapon('AK-47', 10, 600, loadings.load_image('ak-47.png'), 20)]
         self.slot_number = 0
         self.pos = pos
         self.side = 'right'
