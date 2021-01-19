@@ -92,8 +92,8 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__()
         self.cos = cos
         self.sin = sin
-        self.image = pygame.Surface((6, 6))
-        pygame.draw.circle(self.image, '#c9b500', (3, 3), 3)
+        self.image = pygame.Surface((10, 10))
+        pygame.draw.circle(self.image, '#c9b500', (5, 5), 5)
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
@@ -112,10 +112,8 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Character(pygame.sprite.Sprite):
-    def __init__(self, pos, type_ch):
+    def __init__(self, type_ch):
         super().__init__()
-        self.rect = pygame.Rect((pos[0], pos[1], 65, 65))
-        print(self.rect)
         all_sprites.add(self)
         if type_ch == 'enemy':
             enemies.add(self)
@@ -125,12 +123,10 @@ class Character(pygame.sprite.Sprite):
         self.shooting = False
 
     def rotate_image(self, pos):
-        print(self.rect, 64)
         rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
         angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
         self.image = pygame.transform.rotate(self.image, angle)
         self.rect = self.image.get_rect(center=self.rect.center)
-        print(self.rect, '================================')
 
     def shoot(self, go_to):
         delta_x = go_to[0] - self.rect.x
@@ -145,20 +141,19 @@ class Character(pygame.sprite.Sprite):
 
 class MainHero(Character):
     def __init__(self, pos):
-        super().__init__(pos, 'hero')
+        super().__init__('hero')
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
                         Weapon('AK-47', 10, 200, loadings.load_image('ak-47.png'), 20)]
         self.slot_number = 0
         self.image = loadings.load_image('good_stay_1.png')
-        print(self.rect, '=-=--=-=-=-==-=-------------')
         self.rect = self.image.get_rect()
-        print(self.rect, '=-=--=-=-=-==-=-------------')
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
         self.weapon_clock = pygame.time.Clock()
 
     def update_hero(self):
         if self.shooting:
             if self.weapon_clock.tick() > 50:
-                print('===========')
                 self.shoot(pygame.mouse.get_pos())
         next_x, next_y = 0, 0
         if pygame.key.get_pressed()[pygame.K_a]:
@@ -188,7 +183,6 @@ class Game:
 
     def render(self):
         self.hero.update_hero()
-        print(self.hero.rect, '-=-=-=--')
         for bull in hero_bullets:
             bull.update()
         self.room.render()
@@ -202,7 +196,7 @@ class Game:
 def draw_hp(in_screen):
     # pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
     pygame.draw.rect(in_screen, (204, 0, 0), (width // 4, height - 80, hero.hp * 2, 40))
-    pygame.draw.rect(in_screen, (204, 0, 0), (width // 4, height - 80, 200, 40), 3)
+    pygame.draw.rect(in_screen, (0, 0, 0), (width // 4, height - 80, 200, 40), 3)
 
 
 class Camera:
@@ -211,22 +205,20 @@ class Camera:
         self.dy = 0
 
     def apply(self, obj):
-        if type(obj).__name__ == 'MainHero':
-            print(obj.rect)
         obj.rect.x += self.dx
         obj.rect.y += self.dy
 
     def update(self, target):
         l_u_cell = obstacles.sprites()[0]
         r_d_cell = obstacles.sprites()[115]
-        if (l_u_cell.rect.x >= 0 and target.rect.x < width // 2) or \
-                (r_d_cell.rect.x <= width - r_d_cell.rect.w):
+        if (l_u_cell.rect.x >= 0 and target.rect.x + target.rect.w // 2 < width // 2) or \
+                (r_d_cell.rect.x <= width - r_d_cell.rect.w and width // 2 <= target.rect.x + target.rect.w // 2):
             self.dx = 0
         else:
             self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
 
-        if (l_u_cell.rect.y >= 0 and target.rect.y < height // 2) or \
-                (r_d_cell.rect.y <= height - r_d_cell.rect.h):
+        if (l_u_cell.rect.y >= 0 and target.rect.y + target.rect.h // 2 < height // 2) or \
+                (r_d_cell.rect.y <= height - r_d_cell.rect.h and height // 2 <= target.rect.y + target.rect.h // 2):
             self.dy = 0
         else:
             self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
