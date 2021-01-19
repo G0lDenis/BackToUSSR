@@ -4,7 +4,7 @@ import loadings
 import sqlite3
 import os
 import math
-
+import random
 
 def terminate():
     pygame.quit()
@@ -72,14 +72,14 @@ class Weapon:
         self.spr.image = self.img
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
-        im = pygame.transform.scale(self.img, (self.img.get_width() // 5, self.img.get_height() // 5))
+        im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
         self.sm_spr.image = im
         self.sm_spr.rect = self.spr.image.get_rect()
 
-    def drop(self):
+    def drop(self, x, y):
         all_sprites.add(self.sm_spr)
-        self.sm_spr.rect.x, self.sm_spr.rect.y = hero.rect.x, hero.rect.y
+        self.sm_spr.rect.x, self.sm_spr.rect.y = x, y
         droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
         invent.remove(hero.weapons[hero.slot_number].spr)
 
@@ -88,12 +88,16 @@ class Weapon:
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, weapon, cos, sin):
+    def __init__(self, x, y, weapon, cos, sin, rng):
         super().__init__()
-        self.cos = cos
-        self.sin = sin
-        self.image = pygame.Surface((6, 6))
-        pygame.draw.circle(self.image, '#c9b500', (3, 3), 3)
+        if rng != 0:
+            self.cos = cos + rng
+            self.sin = sin + rng
+        else:
+            self.cos = cos
+            self.sin = sin
+        self.image = pygame.Surface((10, 10))
+        pygame.draw.circle(self.image, '#c9b500', (5, 5), 5)
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
@@ -115,7 +119,7 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 10, 600, loadings.load_image('ak-47.png'), 20)]
+                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20), Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
         self.pos = pos
         self.side = 'right'
@@ -172,9 +176,13 @@ class MainHero(pygame.sprite.Sprite):
         delta_x = go_to[0] - self.rect.x
         delta_y = go_to[1] - self.rect.y
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
+        rng = 0
+        if hero.weapons[hero.slot_number].name == 'Machine-gun':
+            rng = random.uniform(-0.2, 0.2)
+            print(rng)
         if delta_x and delta_y:
-            bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
-                            delta_y / rad)
+            bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], (delta_x / rad),
+                            (delta_y / rad), rng)
             all_sprites.add(bullet)
             hero_bullets.add(bullet)
 
@@ -288,7 +296,7 @@ if __name__ == '__main__':
                             else:
                                 if hero.weapons[hero.slot_number].name != 'simple pistol':
                                     droped_weapon[i][0].draw()
-                                    hero.weapons[hero.slot_number].drop()
+                                    hero.weapons[hero.slot_number].drop(hero.rect.x, hero.rect.y)
                                     a = hero.weapons[hero.slot_number]
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
