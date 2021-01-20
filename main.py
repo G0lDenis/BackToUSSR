@@ -4,6 +4,7 @@ import loadings
 import sqlite3
 import os
 import math
+from random import randrange
 
 
 def terminate():
@@ -57,10 +58,6 @@ class Room:
             self.sl[dat[0]] = [dat[1], dat[2]]
 
 
-class Enemy:
-    pass
-
-
 class Weapon:
     def __init__(self, name, damage, radius, img, velocity):
         self.name = name
@@ -111,6 +108,31 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 
+class InvisBullet(pygame.sprite.Sprite):
+    def __init__(self, pos, rad):
+        super().__init__()
+        self.rect = pygame.Rect(pos[0], pos[1], 1, 1)
+        self.image = pygame.Surface((1, 1))
+        self.rad = rad
+
+    def check_avail(self, pos):
+        dist = 0
+        while not (pygame.sprite.spritecollideany(self, obstacles,
+                                                  collided=collide_with_mask) or
+                   pygame.sprite.collide_mask(self, hero)) and dist <= self.rad:
+            delta_x = self.rect.centerx - pos[0]
+            delta_y = self.rect.centery - pos[1]
+            if delta_x:
+                delta_x = delta_x // abs(delta_x) * 5
+            if delta_y:
+                delta_y = delta_y // abs(delta_y) * 5
+            dist += math.sqrt(delta_x ** 2 + delta_y ** 2)
+            self.rect = self.rect.move(-delta_x, -delta_y)
+        if self.rect.colliderect(hero.rect):
+            return True
+        return False
+
+
 class Character(pygame.sprite.Sprite):
     def __init__(self, type_ch):
         super().__init__()
@@ -128,16 +150,6 @@ class Character(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image, angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
-    def shoot(self, go_to):
-        delta_x = go_to[0] - self.rect.x
-        delta_y = go_to[1] - self.rect.y
-        rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
-        if delta_x and delta_y:
-            bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
-                            delta_y / rad)
-            all_sprites.add(bullet)
-            hero_bullets.add(bullet)
-
 
 class MainHero(Character):
     def __init__(self, pos):
@@ -146,14 +158,16 @@ class MainHero(Character):
                         Weapon('AK-47', 10, 200, loadings.load_image('ak-47.png'), 20)]
         self.slot_number = 0
         self.image = loadings.load_image('good_stay_1.png')
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.weapon_clock = pygame.time.Clock()
+        self.weapon_clock = pygame.USEREVENT + 1
+        pygame.time.set_timer(self.check_shooting, 300)
 
     def update_hero(self):
         if self.shooting:
-            if self.weapon_clock.tick() > 50:
+            if self.weapon_clock.tick() > 51:
                 self.shoot(pygame.mouse.get_pos())
         next_x, next_y = 0, 0
         if pygame.key.get_pressed()[pygame.K_a]:
@@ -174,6 +188,75 @@ class MainHero(Character):
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles, collided=collide_with_mask) is not None:
             self.rect = self.rect.move(-next_x, -next_y)
+        for bullet in enemy_bullets:
+            if pygame.sprite.collide_mask(bullet, self):
+                self.hp -= bullet.weapon.damage
+                bullet.kill()
+
+    def shoot(self, go_to):
+        delta_x = go_to[0] - self.rect.x
+        delta_y = go_to[1] - self.rect.y
+        rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
+        if delta_x and delta_y:
+            bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
+                            delta_y / rad)
+            all_sprites.add(bullet)
+            hero_bullets.add(bullet)
+
+
+class Enemy(Character):
+    def __init__(self, pos, n):
+        super().__init__('enemy')
+        self.image = loadings.load_image('bad_stay.png')
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.weapon_clock = pygame.time.Clock()
+        self.check_shooting = pygame.USEREVENT + n + 2
+        pygame.time.set_timer(self.check_shooting, 300)
+
+    def update_enemy(self):
+        for event in pygame.event.get():
+            if event.type == self.check_shooting:
+                self.check()
+        if self.shooting:
+            if self.weapon_clock.tick() > 51:
+                self.shoot()
+        if self.shooting:
+            self.image = loadings.load_image('bad_shoot.png')
+        else:
+            self.image = loadings.load_image('bad_stay.png')
+        self.rotate_image((hero.rect.x + hero.rect.w // 2, hero.rect.y + hero.rect.h // 2))
+        self.image = self.image.convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        for bullet in hero_bullets:
+            if pygame.sprite.collide_mask(bullet, self):
+                self.hp -= bullet.weapon.damage
+                bullet.kill()
+        if self.hp <= 0:
+            self.kill()
+
+    def check(self):
+        if 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
+            invis = InvisBullet(self.rect.center, self.weapon.radius)
+            if invis.check_avail(hero.rect.center):
+                self.shooting = True
+            else:
+                self.shooting = False
+            invis.kill()
+        else:
+            self.shooting = False
+
+    def shoot(self):
+        delta_x = hero.rect.centerx - self.rect.x
+        delta_y = hero.rect.centery - self.rect.y
+        rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
+        if delta_x and delta_y:
+            bullet = Bullet(self.rect.centerx, self.rect.centery, self.weapon, delta_x / rad,
+                            delta_y / rad)
+            all_sprites.add(bullet)
+            enemy_bullets.add(bullet)
 
 
 class Game:
@@ -183,6 +266,8 @@ class Game:
 
     def render(self):
         self.hero.update_hero()
+        for en in enemies:
+            en.update_enemy()
         for bull in hero_bullets:
             bull.update()
         self.room.render()
@@ -241,10 +326,16 @@ if __name__ == '__main__':
     room = Room('f-r.txt')
     hero = MainHero((room.tile_width + 1, room.tile_height + 1))
     game = Game(room, hero)
+    camera = Camera()
+    for i in range(5):
+        enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
+        while pygame.sprite.spritecollideany(enemy, obstacles, collided=collide_with_mask) or enemy.rect.colliderect(
+                hero.rect):
+            enemy.kill()
+            enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
     pygame.display.flip()
     hero.weapons[hero.slot_number].draw()
     clock = pygame.time.Clock()
-    camera = Camera()
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
