@@ -128,6 +128,7 @@ class InvisBullet(pygame.sprite.Sprite):
                 delta_y = delta_y // abs(delta_y) * 5
             dist += math.sqrt(delta_x ** 2 + delta_y ** 2)
             self.rect = self.rect.move(-delta_x, -delta_y)
+        print(self.rect.colliderect(hero.rect))
         if self.rect.colliderect(hero.rect):
             return True
         return False
@@ -143,6 +144,8 @@ class Character(pygame.sprite.Sprite):
         self.mask = None
         self.hp = 100
         self.shooting = False
+        self.weapon_clock = pygame.time.Clock()
+        self.time_between_shoots = 0
 
     def rotate_image(self, pos):
         rel_x, rel_y = pos[0] - self.rect.x, pos[1] - self.rect.y
@@ -162,12 +165,15 @@ class MainHero(Character):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.weapon_clock = pygame.time.Clock()
 
     def update_hero(self):
         if self.shooting:
-            if self.weapon_clock.tick() > 51:
+            self.time_between_shoots += self.weapon_clock.tick()
+            if self.time_between_shoots > 300:
                 self.shoot(pygame.mouse.get_pos())
+                self.time_between_shoots = 0
+        else:
+            self.time_between_shoots = 0
         next_x, next_y = 0, 0
         if pygame.key.get_pressed()[pygame.K_a]:
             next_x -= 5
@@ -211,17 +217,20 @@ class Enemy(Character):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.weapon_clock = pygame.time.Clock()
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 300)
+        pygame.time.set_timer(self.check_shooting, 100)
 
     def update_enemy(self):
         for event in pygame.event.get():
             if event.type == self.check_shooting:
                 self.check()
         if self.shooting:
-            if self.weapon_clock.tick() > 51:
+            self.time_between_shoots += self.weapon_clock.tick()
+            if self.time_between_shoots > 200:
                 self.shoot()
+                self.time_between_shoots = 0
+        else:
+            self.time_between_shoots = 0
         if self.shooting:
             self.image = loadings.load_image('bad_shoot.png')
         else:
