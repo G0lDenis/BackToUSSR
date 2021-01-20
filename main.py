@@ -225,7 +225,7 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 20)
+        pygame.time.set_timer(self.check_shooting, 40)
 
     def update_enemy(self):
         for event in pygame.event.get():
@@ -233,7 +233,7 @@ class Enemy(Character):
                 self.check()
         if self.shooting:
             self.time_between_shoots += self.weapon_clock.tick()
-            if self.time_between_shoots > 300:
+            if self.time_between_shoots > 1000:
                 self.shoot()
                 self.time_between_shoots = 0
         else:
@@ -378,8 +378,8 @@ def run_game():
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
                     for i in range(len(droped_weapon)):
-                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][
-                            0].sm_spr.rect.y - hero.rect.y != 0:
+                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and \
+                                droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
                             square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
                             square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
                             go = math.sqrt(square_go_x + square_go_y)
