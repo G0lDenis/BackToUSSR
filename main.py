@@ -6,6 +6,7 @@ import os
 import math
 import random
 
+
 def terminate():
     pygame.quit()
     sys.exit()
@@ -20,7 +21,7 @@ def collide_with_mask(spr1, spr2):
 class Cell(pygame.sprite.Sprite):
     def __init__(self, im, x, y, w, h):
         super().__init__()
-        self.image = im
+        self.image = im.convert()
         self.rect = pygame.Rect(x, y, w, h)
 
 
@@ -69,12 +70,12 @@ class Weapon:
         self.velocity = velocity
         self.img = img
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = self.img
+        self.spr.image = self.img.convert()
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
         im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
-        self.sm_spr.image = im
+        self.sm_spr.image = im.convert()
         self.sm_spr.rect = self.spr.image.get_rect()
 
     def drop(self, x, y):
@@ -119,7 +120,8 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20), Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
+                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20),
+                        Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
         self.pos = pos
         self.side = 'right'
@@ -276,7 +278,7 @@ if __name__ == '__main__':
                     print(hero.slot_number)
                 if ev.key == pygame.K_g:
                     if hero.weapons[hero.slot_number].name != 'simple pistol':
-                        hero.weapons[hero.slot_number].drop()
+                        hero.weapons[hero.slot_number].drop(hero.rect.x, hero.rect.y)
                         del hero.weapons[hero.slot_number]
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
