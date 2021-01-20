@@ -94,7 +94,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.bottom = y
+        self.rect.centery = y
         self.rect.centerx = x
         self.weapon = weapon
         self.distance = 0
@@ -123,12 +123,12 @@ class InvisBullet(pygame.sprite.Sprite):
             delta_x = self.rect.centerx - pos[0]
             delta_y = self.rect.centery - pos[1]
             if delta_x:
-                delta_x = delta_x // abs(delta_x) * 5
+                delta_x = (delta_x // abs(delta_x)) * 5
             if delta_y:
-                delta_y = delta_y // abs(delta_y) * 5
+                delta_y = (delta_y // abs(delta_y)) * 5
+            print(delta_x, delta_y)
             dist += math.sqrt(delta_x ** 2 + delta_y ** 2)
             self.rect = self.rect.move(-delta_x, -delta_y)
-        print(self.rect.colliderect(hero.rect))
         if self.rect.colliderect(hero.rect):
             return True
         return False
@@ -199,8 +199,8 @@ class MainHero(Character):
                 bullet.kill()
 
     def shoot(self, go_to):
-        delta_x = go_to[0] - self.rect.x
-        delta_y = go_to[1] - self.rect.y
+        delta_x = go_to[0] - self.rect.centerx
+        delta_y = go_to[1] - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
         if delta_x and delta_y:
             bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], delta_x / rad,
@@ -257,8 +257,8 @@ class Enemy(Character):
             self.shooting = False
 
     def shoot(self):
-        delta_x = hero.rect.centerx - self.rect.x
-        delta_y = hero.rect.centery - self.rect.y
+        delta_x = hero.rect.centerx - self.rect.centerx
+        delta_y = hero.rect.centery - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
         if delta_x and delta_y:
             bullet = Bullet(self.rect.centerx, self.rect.centery, self.weapon, delta_x / rad,
