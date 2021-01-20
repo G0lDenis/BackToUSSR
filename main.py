@@ -21,7 +21,7 @@ def collide_with_mask(spr1, spr2):
 class Cell(pygame.sprite.Sprite):
     def __init__(self, im, x, y, w, h):
         super().__init__()
-        self.image = im
+        self.image = im.convert()
         self.rect = pygame.Rect(x, y, w, h)
 
 
@@ -164,7 +164,7 @@ class MainHero(Character):
                         Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20),
                         Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
-        self.image = loadings.load_image('good_stay_1.png')
+        self.image = loadings.load_image('good_stay.png')
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
@@ -296,7 +296,6 @@ class Game:
 
 
 def draw_hp(in_screen):
-    # pygame.draw.rect(in_screen, pygame.Color(10, 0, 250, a=100), (0, 668, 1024, 100))
     pygame.draw.rect(in_screen, (204, 0, 0), (width // 4, height - 80, hero.hp * 2, 40))
     pygame.draw.rect(in_screen, (0, 0, 0), (width // 4, height - 80, 200, 40), 3)
 
@@ -379,7 +378,6 @@ def run_game():
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
                     for i in range(len(droped_weapon)):
-                        print(droped_weapon, i)
                         if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][
                             0].sm_spr.rect.y - hero.rect.y != 0:
                             square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
@@ -399,7 +397,6 @@ def run_game():
                                 if hero.weapons[hero.slot_number].name != 'simple pistol':
                                     droped_weapon[i][0].draw()
                                     hero.weapons[hero.slot_number].drop(hero.rect.centerx, hero.rect.centery)
-                                    a = hero.weapons[hero.slot_number]
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
