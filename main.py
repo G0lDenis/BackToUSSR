@@ -269,6 +269,8 @@ class Game:
             en.update_enemy()
         for bull in hero_bullets:
             bull.update()
+        for bull in enemy_bullets:
+            bull.update()
         self.room.render()
         for sprite in all_sprites:
             camera.apply(sprite)
