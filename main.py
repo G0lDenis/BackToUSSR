@@ -66,12 +66,12 @@ class Weapon:
         self.velocity = velocity
         self.img = img
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = self.img
+        self.spr.image = self.img.convert()
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
-        im = pygame.transform.scale(self.img, (self.img.get_width() // 5, self.img.get_height() // 5))
+        im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
-        self.sm_spr.image = im
+        self.sm_spr.image = im.convert()
         self.sm_spr.rect = self.spr.image.get_rect()
 
     def drop(self, x, y):
@@ -353,6 +353,26 @@ if __name__ == '__main__':
     pygame.display.flip()
     hero.weapons[hero.slot_number].draw()
     clock = pygame.time.Clock()
+
+pygame.init()
+FPS = 20
+size = width, height = 1024, 768
+screen = pygame.display.set_mode(size)
+pygame.display.set_caption('Back To USSR')
+all_sprites = pygame.sprite.Group()
+cells = pygame.sprite.Group()
+obstacles = pygame.sprite.Group()
+hero_bullets = pygame.sprite.Group()
+invent = pygame.sprite.Group()
+droped_weapon = []
+room = Room('f-r.txt')
+hero = MainHero((0, 3 * room.tile_height))
+game = Game(room, hero)
+pygame.display.flip()
+hero.weapons[hero.slot_number].draw()
+clock = pygame.time.Clock()
+camera = Camera()
+def run_game():
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -377,9 +397,13 @@ if __name__ == '__main__':
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
                     for i in range(len(droped_weapon)):
-                        square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
-                        square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
-                        go = math.sqrt(square_go_x + square_go_y)
+                        print(droped_weapon, i)
+                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
+                            square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
+                            square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
+                            go = math.sqrt(square_go_x + square_go_y)
+                        else:
+                            go = 15
                         if go <= 20:
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
@@ -396,6 +420,7 @@ if __name__ == '__main__':
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
+                            break
 
         camera.update(hero)
         screen.fill((0, 0, 0))
