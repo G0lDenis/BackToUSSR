@@ -239,25 +239,26 @@ class Camera:
             self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
-if __name__ == '__main__':
-    pygame.init()
-    FPS = 20
-    size = width, height = 1024, 768
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption('Back To USSR')
-    all_sprites = pygame.sprite.Group()
-    cells = pygame.sprite.Group()
-    obstacles = pygame.sprite.Group()
-    hero_bullets = pygame.sprite.Group()
-    invent = pygame.sprite.Group()
-    droped_weapon = []
-    room = Room('f-r.txt')
-    hero = MainHero((0, 3 * room.tile_height))
-    game = Game(room, hero)
-    pygame.display.flip()
-    hero.weapons[hero.slot_number].draw()
-    clock = pygame.time.Clock()
-    camera = Camera()
+
+pygame.init()
+FPS = 20
+size = width, height = 1024, 768
+screen = pygame.display.set_mode(size)
+pygame.display.set_caption('Back To USSR')
+all_sprites = pygame.sprite.Group()
+cells = pygame.sprite.Group()
+obstacles = pygame.sprite.Group()
+hero_bullets = pygame.sprite.Group()
+invent = pygame.sprite.Group()
+droped_weapon = []
+room = Room('f-r.txt')
+hero = MainHero((0, 3 * room.tile_height))
+game = Game(room, hero)
+pygame.display.flip()
+hero.weapons[hero.slot_number].draw()
+clock = pygame.time.Clock()
+camera = Camera()
+def run_game():
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:

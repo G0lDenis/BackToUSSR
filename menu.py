@@ -1,7 +1,7 @@
 import sys
 import pygame
 import pygame_widgets as pw
-
+from main import run_game as rg
 
 
 def terminate():
@@ -10,7 +10,7 @@ def terminate():
 
 
 pygame.font.init()
-size = width, height = 1200, 675
+size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Back To USSR')
 img = pygame.image.load("images\menu_back.jpg")
@@ -20,7 +20,7 @@ button_play = pw.Button(
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: print('x'),
+    onClick=lambda: rg(),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,
