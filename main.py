@@ -162,8 +162,7 @@ class MainHero(Character):
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        self.weapon_clock = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.check_shooting, 300)
+        self.weapon_clock = pygame.time.Clock()
 
     def update_hero(self):
         if self.shooting:
