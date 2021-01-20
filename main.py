@@ -326,34 +326,6 @@ class Camera:
             self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
-if __name__ == '__main__':
-    pygame.init()
-    FPS = 20
-    size = width, height = 1024, 768
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption('Back To USSR')
-    all_sprites = pygame.sprite.Group()
-    cells = pygame.sprite.Group()
-    obstacles = pygame.sprite.Group()
-    hero_bullets = pygame.sprite.Group()
-    enemy_bullets = pygame.sprite.Group()
-    enemies = pygame.sprite.Group()
-    invent = pygame.sprite.Group()
-    droped_weapon = []
-    room = Room('f-r.txt')
-    hero = MainHero((room.tile_width + 1, room.tile_height + 1))
-    game = Game(room, hero)
-    camera = Camera()
-    for i in range(5):
-        enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
-        while pygame.sprite.spritecollideany(enemy, obstacles, collided=collide_with_mask) or enemy.rect.colliderect(
-                hero.rect):
-            enemy.kill()
-            enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
-    pygame.display.flip()
-    hero.weapons[hero.slot_number].draw()
-    clock = pygame.time.Clock()
-
 pygame.init()
 FPS = 20
 size = width, height = 1024, 768
@@ -363,15 +335,25 @@ all_sprites = pygame.sprite.Group()
 cells = pygame.sprite.Group()
 obstacles = pygame.sprite.Group()
 hero_bullets = pygame.sprite.Group()
+enemy_bullets = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
 droped_weapon = []
 room = Room('f-r.txt')
-hero = MainHero((0, 3 * room.tile_height))
+hero = MainHero((room.tile_width + 1, room.tile_height + 1))
 game = Game(room, hero)
+camera = Camera()
+for i in range(5):
+    enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
+    while pygame.sprite.spritecollideany(enemy, obstacles, collided=collide_with_mask) or enemy.rect.colliderect(
+            hero.rect):
+        enemy.kill()
+        enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
-camera = Camera()
+
+
 def run_game():
     while True:
         for ev in pygame.event.get():
@@ -398,7 +380,8 @@ def run_game():
                 elif ev.key == pygame.K_f:
                     for i in range(len(droped_weapon)):
                         print(droped_weapon, i)
-                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
+                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][
+                            0].sm_spr.rect.y - hero.rect.y != 0:
                             square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
                             square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
                             go = math.sqrt(square_go_x + square_go_y)
@@ -420,7 +403,6 @@ def run_game():
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
-                            break
 
         camera.update(hero)
         screen.fill((0, 0, 0))
