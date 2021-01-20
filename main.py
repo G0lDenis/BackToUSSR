@@ -6,6 +6,7 @@ import os
 import math
 import random
 
+
 def terminate():
     pygame.quit()
     sys.exit()
@@ -119,7 +120,8 @@ class MainHero(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20), Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
+                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20),
+                        Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
         self.pos = pos
         self.side = 'right'
@@ -239,7 +241,6 @@ class Camera:
             self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
-
 pygame.init()
 FPS = 20
 size = width, height = 1024, 768
@@ -258,6 +259,8 @@ pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
 camera = Camera()
+
+
 def run_game():
     while True:
         for ev in pygame.event.get():
@@ -265,7 +268,6 @@ def run_game():
                 terminate()
             elif ev.type == pygame.MOUSEBUTTONDOWN:
                 hero.shoot(pygame.mouse.get_pos())
-
             if ev.type == pygame.KEYUP:
                 if ev.key == pygame.K_q:
                     invent.remove(hero.weapons[hero.slot_number].spr)
@@ -282,16 +284,10 @@ def run_game():
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
-                    for i in droped_weapon:
-                        print(i[0].name)
                     for i in range(len(droped_weapon)):
-                        print(droped_weapon, i)
-                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
-                            square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
-                            square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
-                            go = math.sqrt(square_go_x + square_go_y)
-                        else:
-                            go = 15
+                        square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
+                        square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
+                        go = math.sqrt(square_go_x + square_go_y)
                         if go <= 20:
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
