@@ -1,6 +1,4 @@
-import pygame
 import sys
-import pygame_gui
 import pygame
 import pygame_widgets as pw
 
@@ -16,14 +14,13 @@ size = width, height = 1200, 675
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Back To USSR')
 img = pygame.image.load("images\menu_back.jpg")
-img1 = pygame.image.load('images\play_btn.png')
 font = pygame.font.SysFont('tahoma', 36)
 button_play = pw.Button(
     screen, 80, 300, 300, 50, text='Играть',
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: run_game(),
+    onClick=lambda: print('x'),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,
@@ -34,7 +31,7 @@ button_settings = pw.Button(
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: settings(),
+    onClick=lambda: print('y'),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,

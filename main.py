@@ -281,10 +281,16 @@ if __name__ == '__main__':
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
+                    for i in droped_weapon:
+                        print(i[0].name)
                     for i in range(len(droped_weapon)):
-                        square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
-                        square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
-                        go = math.sqrt(square_go_x + square_go_y)
+                        print(droped_weapon, i)
+                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
+                            square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
+                            square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
+                            go = math.sqrt(square_go_x + square_go_y)
+                        else:
+                            go = 15
                         if go <= 20:
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
@@ -301,6 +307,7 @@ if __name__ == '__main__':
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
+                            break
 
         camera.update(hero)
         screen.fill((0, 0, 0))
