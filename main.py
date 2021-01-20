@@ -130,7 +130,6 @@ class InvisBullet(pygame.sprite.Sprite):
                 delta_x = (delta_x // abs(delta_x)) * 5
             if delta_y:
                 delta_y = (delta_y // abs(delta_y)) * 5
-            print(delta_x, delta_y)
             dist += math.sqrt(delta_x ** 2 + delta_y ** 2)
             self.rect = self.rect.move(-delta_x, -delta_y)
         if self.rect.colliderect(hero.rect):
@@ -191,7 +190,7 @@ class MainHero(Character):
         if self.shooting:
             self.image = loadings.load_image('good_shoote.png')
         else:
-            self.image = loadings.load_image('good_stay_1.png')
+            self.image = loadings.load_image('good_stay.png')
         self.rotate_image(pygame.mouse.get_pos())
         self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
@@ -210,7 +209,6 @@ class MainHero(Character):
         rng = 0
         if hero.weapons[hero.slot_number].name == 'Machine-gun':
             rng = uniform(-0.2, 0.2)
-            print(rng)
         if delta_x and delta_y:
             bullet = Bullet(self.rect.centerx, self.rect.centery, hero.weapons[hero.slot_number], (delta_x / rad),
                             (delta_y / rad), rng)
@@ -227,7 +225,7 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 100)
+        pygame.time.set_timer(self.check_shooting, 20)
 
     def update_enemy(self):
         for event in pygame.event.get():
@@ -235,7 +233,7 @@ class Enemy(Character):
                 self.check()
         if self.shooting:
             self.time_between_shoots += self.weapon_clock.tick()
-            if self.time_between_shoots > 200:
+            if self.time_between_shoots > 300:
                 self.shoot()
                 self.time_between_shoots = 0
         else:
@@ -271,7 +269,7 @@ class Enemy(Character):
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
         if delta_x and delta_y:
             bullet = Bullet(self.rect.centerx, self.rect.centery, self.weapon, delta_x / rad,
-                            delta_y / rad)
+                            delta_y / rad, 0)
             all_sprites.add(bullet)
             enemy_bullets.add(bullet)
 
