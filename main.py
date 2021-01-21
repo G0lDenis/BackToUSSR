@@ -214,7 +214,7 @@ class MainHero(Character):
     def load_weapon(self):
         con = sqlite3.connect('weapons.db')
         cur = con.cursor()
-        for weap_id in data[1]:
+        for weap_id in data[1][0].split():
             weap = list(cur.execute(f'''select title, damage, radius, image, velocity from weapons
                                         where id={weap_id}''').fetchone())
             weap[3] = loadings.load_image(weap[3])
@@ -397,6 +397,7 @@ def run_game():
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
+                    print(droped_weapon)
                     for i in range(len(droped_weapon)):
                         if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and \
                                 droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
@@ -405,7 +406,8 @@ def run_game():
                             go = math.sqrt(square_go_x + square_go_y)
                         else:
                             go = 15
-                        if go <= 20:
+                        print(go)
+                        if go <= 100:
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
                                 invent.remove(hero.weapons[hero.slot_number].spr)

@@ -47,6 +47,5 @@ def show_btn():
 
 
 def restart():
-    terminate()
     call(["python", "main.py"])
     pygame.quit()
