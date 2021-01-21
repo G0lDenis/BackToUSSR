@@ -146,7 +146,12 @@ class Character(pygame.sprite.Sprite):
         all_sprites.add(self)
         if type_ch == 'enemy':
             enemies.add(self)
-            self.weapon = Weapon('simple pistol', 10, 500, loadings.load_image('default_pistol.png'), 10)
+            con = sqlite3.connect('weapons.db')
+            cur = con.cursor()
+            self.weapon = list(cur.execute(f'''select title, damage, radius, image, velocity from weapons
+                                                    where id=1''').fetchone())
+            self.weapon[3] = loadings.load_image(self.weapon[3])
+            self.weapon = Weapon(*self.weapon)
         self.mask = None
         self.hp = 100
         self.shooting = False
