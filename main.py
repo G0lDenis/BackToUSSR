@@ -77,15 +77,18 @@ class Weapon:
         self.sm_spr.image = im.convert_alpha()
         self.sm_spr.rect = self.spr.image.get_rect()
 
-    def drop(self, x, y):
+    def drop(self, x, y, i):
         im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
         self.sm_spr.image = im.convert_alpha()
         self.sm_spr.rect = self.spr.image.get_rect()
         all_sprites.add(self.sm_spr)
         self.sm_spr.rect.x, self.sm_spr.rect.y = x, y
-        droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
-        invent.remove(hero.weapons[hero.slot_number].spr)
+        if not i:
+            droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
+            invent.remove(hero.weapons[hero.slot_number].spr)
+        else:
+            droped_weapon.append([self, self.sm_spr.rect.x, self.sm_spr.rect.y])
 
     def draw(self):
         invent.add(self.spr)
@@ -380,10 +383,10 @@ for i in range(5):
 if int(data[0][0]) == 1:
     weap = Weapon(*loadings.load_weapon(2))
     weap.spr.kill()
-    weap.drop(randrange(width), randrange(height))
+    weap.drop(randrange(width), randrange(height), True)
     while pygame.sprite.spritecollideany(weap.sm_spr, obstacles):
         weap.sm_spr.kill()
-        weap.drop(randrange(width), randrange(height))
+        weap.drop(randrange(width), randrange(height), True)
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
@@ -409,7 +412,7 @@ def run_game():
                     hero.weapons[hero.slot_number].draw()
                 if ev.key == pygame.K_g:
                     if hero.weapons[hero.slot_number].name != 'simple pistol':
-                        hero.weapons[hero.slot_number].drop(hero.rect.centerx, hero.rect.centery)
+                        hero.weapons[hero.slot_number].drop(hero.rect.centerx, hero.rect.centery, False)
                         del hero.weapons[hero.slot_number]
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
@@ -434,7 +437,7 @@ def run_game():
                             else:
                                 if hero.weapons[hero.slot_number].name != 'simple pistol':
                                     droped_weapon[i][0].draw()
-                                    hero.weapons[hero.slot_number].drop(hero.rect.centerx, hero.rect.centery)
+                                    hero.weapons[hero.slot_number].drop(hero.rect.centerx, hero.rect.centery, False)
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
