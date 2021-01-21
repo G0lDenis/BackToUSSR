@@ -20,6 +20,7 @@ def load_results():
 def load_map(map_id):
     con = sqlite3.connect(os.path.join('Maps', 'maps.db'))
     cur = con.cursor()
+    print(map_id)
     map_name = cur.execute(f'''select way from maps where id={map_id}''').fetchone()[0]
     txt_way = os.path.join('Maps', map_name)
     with open(txt_way, 'r', encoding='utf-8') as file:
