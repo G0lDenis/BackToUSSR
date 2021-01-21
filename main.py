@@ -27,8 +27,8 @@ class Cell(pygame.sprite.Sprite):
 
 
 class Room:
-    def __init__(self, id):
-        self.map = loadings.load_map(id)
+    def __init__(self, name):
+        self.map = loadings.load_map(name)
         self.sl = {}
         self.load_sql()
         self.width = 32
@@ -43,7 +43,6 @@ class Room:
                 im = loadings.load_image(self.sl[self.map[y][x]][0])
                 cell = Cell(im, x * self.tile_width, y * self.tile_height, self.tile_width, self.tile_height)
                 all_sprites.add(cell)
-                all_cells.add(cell)
                 if not self.sl[self.map[y][x]][1]:
                     obstacles.add(cell)
                 else:
@@ -55,7 +54,7 @@ class Room:
     def load_sql(self):
         con = sqlite3.connect(os.path.join('Maps', 'maps.db'))
         cur = con.cursor()
-        data = cur.execute('''select * from map_tiles''')
+        data = cur.execute('''select * from maps''')
         for dat in data:
             self.sl[dat[0]] = [dat[1], dat[2]]
 
@@ -68,12 +67,12 @@ class Weapon:
         self.velocity = velocity
         self.img = img
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = self.img.convert_alpha()
+        self.spr.image = self.img.convert()
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
         im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
-        self.sm_spr.image = im.convert_alpha()
+        self.sm_spr.image = im.convert()
         self.sm_spr.rect = self.spr.image.get_rect()
 
     def drop(self, x, y):
@@ -99,7 +98,6 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, '#c9b500', (5, 5), 5)
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
-        self.image.convert()
         self.rect = self.image.get_rect()
         self.rect.centery = y
         self.rect.centerx = x
@@ -146,7 +144,7 @@ class Character(pygame.sprite.Sprite):
         all_sprites.add(self)
         if type_ch == 'enemy':
             enemies.add(self)
-            self.weapon = Weapon('simple pistol', 10, 500, loadings.load_image('default_pistol.png'), 10)
+            self.weapon = Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10)
         self.mask = None
         self.hp = 100
         self.shooting = False
@@ -163,8 +161,9 @@ class Character(pygame.sprite.Sprite):
 class MainHero(Character):
     def __init__(self, pos):
         super().__init__('hero')
-        self.weapons = []
-        self.load_weapon()
+        self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
+                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20),
+                        Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
         self.image = loadings.load_image('good_stay.png')
         self.mask = pygame.mask.from_surface(self.image)
@@ -206,15 +205,6 @@ class MainHero(Character):
         if self.hp <= 0:
             lose()
 
-    def load_weapon(self):
-        con = sqlite3.connect('weapons.db')
-        cur = con.cursor()
-        for weap_id in data[1]:
-            weap = list(cur.execute(f'''select title, damage, radius, image, velocity from weapons
-                                        where id={weap_id}''').fetchone())
-            weap[3] = loadings.load_image(weap[3])
-            self.weapons.append(Weapon(*weap))
-
     def shoot(self, go_to):
         delta_x = go_to[0] - self.rect.centerx
         delta_y = go_to[1] - self.rect.centery
@@ -238,16 +228,15 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 300)
+        pygame.time.set_timer(self.check_shooting, 20)
 
     def update_enemy(self):
-        if pygame.event.peek(
-                self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
-            pygame.event.get(self.check_shooting)
-            self.check()
+        for event in pygame.event.get():
+            if event.type == self.check_shooting:
+                self.check()
         if self.shooting:
             self.time_between_shoots += self.weapon_clock.tick()
-            if self.time_between_shoots > 1000:
+            if self.time_between_shoots > 300:
                 self.shoot()
                 self.time_between_shoots = 0
         else:
@@ -267,12 +256,15 @@ class Enemy(Character):
             self.kill()
 
     def check(self):
-        invis = InvisBullet(self.rect.center, self.weapon.radius)
-        if invis.check_avail(hero.rect.center):
-            self.shooting = True
+        if 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
+            invis = InvisBullet(self.rect.center, self.weapon.radius)
+            if invis.check_avail(hero.rect.center):
+                self.shooting = True
+            else:
+                self.shooting = False
+            invis.kill()
         else:
             self.shooting = False
-        invis.kill()
 
     def shoot(self):
         delta_x = hero.rect.centerx - self.rect.centerx
@@ -321,8 +313,8 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target):
-        l_u_cell = all_cells.sprites()[0]
-        r_d_cell = all_cells.sprites()[room.width * room.height - 1]
+        l_u_cell = obstacles.sprites()[0]
+        r_d_cell = obstacles.sprites()[115]
         if (l_u_cell.rect.x >= 0 and target.rect.x + target.rect.w // 2 < width // 2) or \
                 (r_d_cell.rect.x <= width - r_d_cell.rect.w and width // 2 <= target.rect.x + target.rect.w // 2):
             self.dx = 0
@@ -348,7 +340,6 @@ hero_bullets = pygame.sprite.Group()
 enemy_bullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
-all_cells = pygame.sprite.Group()
 droped_weapon = []
 data = loadings.load_results()
 room = Room(int(data[0][0]))
@@ -364,7 +355,6 @@ for i in range(5):
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
-
 
 def run_game():
     hero.hp = 100
@@ -392,8 +382,8 @@ def run_game():
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
                     for i in range(len(droped_weapon)):
-                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and \
-                                droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
+                        if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and droped_weapon[i][
+                            0].sm_spr.rect.y - hero.rect.y != 0:
                             square_go_x = math.fabs(droped_weapon[i][0].sm_spr.rect.x - hero.rect.x) ** 2
                             square_go_y = math.fabs(droped_weapon[i][0].sm_spr.rect.y - hero.rect.y) ** 2
                             go = math.sqrt(square_go_x + square_go_y)
@@ -414,7 +404,6 @@ def run_game():
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
-                            break
 
         camera.update(hero)
         screen.fill((0, 0, 0))

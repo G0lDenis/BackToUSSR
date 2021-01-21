@@ -4,6 +4,7 @@ import pygame_widgets as pw
 from subprocess import call
 import time
 
+
 def terminate():
     pygame.quit()
     sys.exit()
@@ -44,8 +45,8 @@ def show_btn():
         button_restart.draw()
         pygame.display.update()
 
+
 def restart():
     terminate()
-    time.sleep(0.1)
     call(["python", "main.py"])
     pygame.quit()
