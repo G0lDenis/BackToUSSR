@@ -2,7 +2,7 @@ import sys
 import pygame
 import pygame_widgets as pw
 from subprocess import call
-
+from main import run_game
 def terminate():
     pygame.quit()
     sys.exit()
@@ -20,7 +20,7 @@ button_play = pw.Button(
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: call(["python", "main.py"]),
+    onClick=lambda: run_game(),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,

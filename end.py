@@ -2,7 +2,6 @@ import sys
 import pygame
 import pygame_widgets as pw
 from subprocess import call
-import time
 
 
 def terminate():

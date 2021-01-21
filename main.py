@@ -221,6 +221,7 @@ class MainHero(Character):
             self.weapons.append(Weapon(*weap))
 
     def shoot(self, go_to):
+        shot.play()
         delta_x = go_to[0] - self.rect.centerx
         delta_y = go_to[1] - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
@@ -281,6 +282,7 @@ class Enemy(Character):
         invis.kill()
 
     def shoot(self):
+        shot.play()
         delta_x = hero.rect.centerx - self.rect.centerx
         delta_y = hero.rect.centery - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
@@ -343,6 +345,9 @@ class Camera:
 
 
 pygame.init()
+pygame.mixer.music.load('music/kalinka.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(50)
 FPS = 20
 size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
@@ -355,6 +360,8 @@ enemy_bullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
 all_cells = pygame.sprite.Group()
+shot = pygame.mixer.Sound('music/shot.mp3')
+put = pygame.mixer.Sound('music/put.mp3')
 droped_weapon = []
 data = loadings.load_results()
 room = Room(int(data[0][0]))
@@ -370,7 +377,6 @@ for i in range(5):
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
-
 
 def run_game():
     hero.hp = 100
@@ -408,6 +414,7 @@ def run_game():
                             go = 15
                         print(go)
                         if go <= 100:
+                            put.play()
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
                                 invent.remove(hero.weapons[hero.slot_number].spr)
