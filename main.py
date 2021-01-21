@@ -67,12 +67,12 @@ class Weapon:
         self.velocity = velocity
         self.img = img
         self.spr = pygame.sprite.Sprite()
-        self.spr.image = self.img.convert()
+        self.spr.image = self.img.convert_alpha()
         self.spr.rect = self.spr.image.get_rect()
         self.spr.rect.x, self.spr.rect.y = (10, screen.get_height() - 100)
         im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
-        self.sm_spr.image = im.convert()
+        self.sm_spr.image = im.convert_alpha()
         self.sm_spr.rect = self.spr.image.get_rect()
 
     def drop(self, x, y):
@@ -163,7 +163,7 @@ class MainHero(Character):
     def __init__(self, pos):
         super().__init__('hero')
         self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 30, 600, loadings.load_image('ak-47.png'), 20),
+                        Weapon('AK-47', 20, 500, loadings.load_image('ak-47.png'), 20),
                         Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
         self.slot_number = 0
         self.image = loadings.load_image('good_stay.png')
@@ -194,7 +194,6 @@ class MainHero(Character):
         else:
             self.image = loadings.load_image('good_stay.png')
         self.rotate_image(pygame.mouse.get_pos())
-        self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles, collided=collide_with_mask) is not None:
@@ -230,7 +229,7 @@ class Enemy(Character):
         pygame.time.set_timer(self.check_shooting, 100)
 
     def update_enemy(self):
-        if pygame.event.peek(self.check_shooting):
+        if pygame.event.peek(self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
             pygame.event.get(self.check_shooting)
             self.check()
         if self.shooting:
@@ -255,15 +254,12 @@ class Enemy(Character):
             self.kill()
 
     def check(self):
-        if 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
-            invis = InvisBullet(self.rect.center, self.weapon.radius)
-            if invis.check_avail(hero.rect.center):
-                self.shooting = True
-            else:
-                self.shooting = False
-            invis.kill()
+        invis = InvisBullet(self.rect.center, self.weapon.radius)
+        if invis.check_avail(hero.rect.center):
+            self.shooting = True
         else:
             self.shooting = False
+        invis.kill()
 
     def shoot(self):
         delta_x = hero.rect.centerx - self.rect.centerx
