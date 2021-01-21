@@ -1,12 +1,8 @@
 import pygame
-import sys
 
 pygame.init()
 
 
-def terminate():
-    pygame.quit()
-    sys.exit()
 
 
 SIZE = WIDTH, HEIGHT = (1024, 768)
@@ -65,10 +61,13 @@ pygame.time.set_timer(ev, 20000)
 
 
 def start_titles():
-    while True:
+    global go
+    go = True
+    while go:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == ev:
-                terminate()
-        screen.fill((0, 0, 0))
-        blit_text(screen, text, (20, 20), font)
-        pygame.display.update()
+                go = False
+        if go:
+            screen.fill((0, 0, 0))
+            blit_text(screen, text, (20, 20), font)
+            pygame.display.update()

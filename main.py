@@ -77,14 +77,14 @@ class Weapon:
         self.sm_spr.image = im.convert_alpha()
         self.sm_spr.rect = self.spr.image.get_rect()
 
-    def drop(self, x, y, i):
+    def drop(self, x, y, artif):
         im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
         self.sm_spr = pygame.sprite.Sprite()
         self.sm_spr.image = im.convert_alpha()
         self.sm_spr.rect = self.spr.image.get_rect()
         all_sprites.add(self.sm_spr)
         self.sm_spr.rect.x, self.sm_spr.rect.y = x, y
-        if not i:
+        if not artif:
             droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
             invent.remove(hero.weapons[hero.slot_number].spr)
         else:
@@ -370,6 +370,7 @@ data = loadings.load_results()
 if not int(data[0][0]):
     start_titles()
     data[0][0] = int(data[0][0]) + 1
+pygame.init()
 room = Room(data[0][0])
 hero = MainHero((room.tile_width + 1, room.tile_height + 1))
 game = Game(room, hero)
@@ -380,8 +381,13 @@ for i in range(5):
             hero.rect):
         enemy.kill()
         enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
+weap = 0
 if int(data[0][0]) == 1:
-    weap = Weapon(*loadings.load_weapon(2))
+    weap = 2
+elif int(data[0][0]) == 2:
+    weap = 3
+if weap:
+    weap = Weapon(*loadings.load_weapon(weap))
     weap.spr.kill()
     weap.drop(randrange(width), randrange(height), True)
     while pygame.sprite.spritecollideany(weap.sm_spr, obstacles):
@@ -451,3 +457,4 @@ def run_game():
 
 
 run_game()
+print('-===-=-=-=--')
