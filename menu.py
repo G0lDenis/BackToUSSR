@@ -1,19 +1,12 @@
-import sys
 import pygame
 import pygame_widgets as pw
 from main import run_game as rg
-
-
-def terminate():
-    pygame.quit()
-    sys.exit()
-
 
 pygame.font.init()
 size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Back To USSR')
-img = pygame.image.load("images\menu_back.jpg")
+img = pygame.image.load("Images\\menu_back.jpg")
 font = pygame.font.SysFont('tahoma', 36)
 button_play = pw.Button(
     screen, 80, 300, 300, 50, text='Играть',

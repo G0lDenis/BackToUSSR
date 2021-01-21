@@ -26,8 +26,8 @@ class Cell(pygame.sprite.Sprite):
 
 
 class Room:
-    def __init__(self, name):
-        self.map = loadings.load_map(name)
+    def __init__(self, id):
+        self.map = loadings.load_map(id)
         self.sl = {}
         self.load_sql()
         self.width = 32
@@ -162,9 +162,8 @@ class Character(pygame.sprite.Sprite):
 class MainHero(Character):
     def __init__(self, pos):
         super().__init__('hero')
-        self.weapons = [Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10),
-                        Weapon('AK-47', 20, 500, loadings.load_image('ak-47.png'), 20),
-                        Weapon('Machine-gun', 10, 400, loadings.load_image('machine-gun.png'), 13)]
+        self.weapons = []
+        self.load_weapon()
         self.slot_number = 0
         self.image = loadings.load_image('good_stay.png')
         self.mask = pygame.mask.from_surface(self.image)
@@ -203,6 +202,15 @@ class MainHero(Character):
                 self.hp -= bullet.weapon.damage
                 bullet.kill()
 
+    def load_weapon(self):
+        con = sqlite3.connect('weapons.db')
+        cur = con.cursor()
+        for weap_id in data[1]:
+            weap = list(cur.execute(f'''select title, damage, radius, image, velocity from weapons
+                                        where id={weap_id}''').fetchone())
+            weap[3] = loadings.load_image(weap[3])
+            self.weapons.append(Weapon(*weap))
+
     def shoot(self, go_to):
         delta_x = go_to[0] - self.rect.centerx
         delta_y = go_to[1] - self.rect.centery
@@ -229,7 +237,8 @@ class Enemy(Character):
         pygame.time.set_timer(self.check_shooting, 300)
 
     def update_enemy(self):
-        if pygame.event.peek(self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
+        if pygame.event.peek(
+                self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
             pygame.event.get(self.check_shooting)
             self.check()
         if self.shooting:
@@ -337,7 +346,8 @@ enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
 all_cells = pygame.sprite.Group()
 droped_weapon = []
-room = Room('f-r_s.txt')
+data = loadings.load_results()
+room = Room(int(data[0][0]))
 hero = MainHero((room.tile_width + 1, room.tile_height + 1))
 game = Game(room, hero)
 camera = Camera()
