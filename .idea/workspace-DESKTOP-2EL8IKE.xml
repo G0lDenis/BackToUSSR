@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ef51c93d-3560-4029-b200-bfc956edc273" name="Default Changelist" comment="Pasha branch merged." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Pasha" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1mvy369RfpRrvjmZ3h1QZJUlAkP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dden4\OneDrive\PycharmProjects\BackToUSSR\" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BackToSSSR" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ef51c93d-3560-4029-b200-bfc956edc273" name="Default Changelist" comment="" />
+      <created>1610388157092</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1610388157092</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Main classes added. Some loadings added.">
+      <created>1610397128927</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1610397128927</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Some classes partially released. Testing first map added. The plot of the game changed, so the main hero picture was changed.">
+      <created>1610484210062</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1610484210062</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Hero sides added.">
+      <created>1610485493728</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1610485493728</updated>
+    </task>
+    <task id="LOCAL-00004" summary="When hero go, he change his side now. Spritelist of main hero added.">
+      <created>1610565750885</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1610565750885</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Mechanics edited.">
+      <created>1610658384284</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1610658384284</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Main hero and another classes edited.">
+      <created>1610733232526</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1610733232526</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Main hero and another classes edited.">
+      <created>1610744667113</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1610744667113</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Camera added.">
+      <created>1610824644817</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1610824644817</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Pasha branch merged. Bullets added.">
+      <created>1610896328864</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1610896328864</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Camera edited. Bullet mechanic edited.">
+      <created>1610913633773</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1610913633773</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Hero hp added. Rendering edited.">
+      <created>1610917518884</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1610917518884</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Service commit.">
+      <created>1611000396952</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1611000396952</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Bugs fixed. Camera is now working. Mask is now working.">
+      <created>1611002508800</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1611002508800</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Pasha branch merged.">
+      <created>1611003419993</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1611003419993</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Main classes added. Some loadings added." />
+    <MESSAGE value="Some classes partially released. Testing first map added. The plot of the game changed, so the main hero picture was changed." />
+    <MESSAGE value="Hero sides added." />
+    <MESSAGE value="When hero go, he change his side now. Spritelist of main hero added." />
+    <MESSAGE value="Mechanics edited." />
+    <MESSAGE value="Main hero and another classes edited." />
+    <MESSAGE value="Camera added." />
+    <MESSAGE value="Pasha branch merged. Bullets added." />
+    <MESSAGE value="Camera edited. Bullet mechanic edited." />
+    <MESSAGE value="Hero hp added. Rendering edited." />
+    <MESSAGE value="Service commit." />
+    <MESSAGE value="Bugs fixed. Camera is now working. Mask is now working." />
+    <MESSAGE value="Pasha branch merged." />
+    <option name="LAST_COMMIT_MESSAGE" value="Pasha branch merged." />
+  </component>
+</project>
