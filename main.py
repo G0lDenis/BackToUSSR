@@ -98,6 +98,7 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, '#c9b500', (5, 5), 5)
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
+        self.image.convert()
         self.rect = self.image.get_rect()
         self.rect.centery = y
         self.rect.centerx = x
@@ -144,7 +145,7 @@ class Character(pygame.sprite.Sprite):
         all_sprites.add(self)
         if type_ch == 'enemy':
             enemies.add(self)
-            self.weapon = Weapon('simple pistol', 10, 400, loadings.load_image('default_pistol.png'), 10)
+            self.weapon = Weapon('simple pistol', 10, 500, loadings.load_image('default_pistol.png'), 10)
         self.mask = None
         self.hp = 100
         self.shooting = False
@@ -226,12 +227,12 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 40)
+        pygame.time.set_timer(self.check_shooting, 100)
 
     def update_enemy(self):
-        for event in pygame.event.get():
-            if event.type == self.check_shooting:
-                self.check()
+        if pygame.event.peek(self.check_shooting):
+            pygame.event.get(self.check_shooting)
+            self.check()
         if self.shooting:
             self.time_between_shoots += self.weapon_clock.tick()
             if self.time_between_shoots > 1000:
@@ -402,6 +403,7 @@ def run_game():
                                     hero.weapons[hero.slot_number] = droped_weapon[i][0]
                                     all_sprites.add(droped_weapon[i][0].sm_spr)
                                     del droped_weapon[i]
+                            break
 
         camera.update(hero)
         screen.fill((0, 0, 0))
