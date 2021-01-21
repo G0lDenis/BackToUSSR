@@ -54,7 +54,7 @@ class Room:
     def load_sql(self):
         con = sqlite3.connect(os.path.join('Maps', 'maps.db'))
         cur = con.cursor()
-        data = cur.execute('''select * from maps''')
+        data = cur.execute('''select * from map_tiles''')
         for dat in data:
             self.sl[dat[0]] = [dat[1], dat[2]]
 
@@ -226,7 +226,7 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 100)
+        pygame.time.set_timer(self.check_shooting, 300)
 
     def update_enemy(self):
         if pygame.event.peek(self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
