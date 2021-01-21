@@ -5,6 +5,7 @@ import sqlite3
 import os
 import math
 from random import randrange, uniform
+from end import lose
 
 
 def terminate():
@@ -193,6 +194,7 @@ class MainHero(Character):
         else:
             self.image = loadings.load_image('good_stay.png')
         self.rotate_image(pygame.mouse.get_pos())
+        self.image = self.image.convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(next_x, next_y)
         if pygame.sprite.spritecollideany(self, obstacles, collided=collide_with_mask) is not None:
@@ -201,6 +203,8 @@ class MainHero(Character):
             if pygame.sprite.collide_mask(bullet, self):
                 self.hp -= bullet.weapon.damage
                 bullet.kill()
+        if self.hp <= 0:
+            lose()
 
     def load_weapon(self):
         con = sqlite3.connect('weapons.db')
@@ -363,6 +367,7 @@ clock = pygame.time.Clock()
 
 
 def run_game():
+    hero.hp = 100
     while True:
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
@@ -416,3 +421,4 @@ def run_game():
         game.render()
         pygame.display.flip()
         clock.tick(FPS)
+run_game()
