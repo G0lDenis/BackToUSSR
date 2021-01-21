@@ -42,6 +42,7 @@ class Room:
                 im = loadings.load_image(self.sl[self.map[y][x]][0])
                 cell = Cell(im, x * self.tile_width, y * self.tile_height, self.tile_width, self.tile_height)
                 all_sprites.add(cell)
+                all_cells.add(cell)
                 if not self.sl[self.map[y][x]][1]:
                     obstacles.add(cell)
                 else:
@@ -310,8 +311,8 @@ class Camera:
         obj.rect.y += self.dy
 
     def update(self, target):
-        l_u_cell = obstacles.sprites()[0]
-        r_d_cell = obstacles.sprites()[115]
+        l_u_cell = all_cells.sprites()[0]
+        r_d_cell = all_cells.sprites()[room.width * room.height - 1]
         if (l_u_cell.rect.x >= 0 and target.rect.x + target.rect.w // 2 < width // 2) or \
                 (r_d_cell.rect.x <= width - r_d_cell.rect.w and width // 2 <= target.rect.x + target.rect.w // 2):
             self.dx = 0
@@ -337,8 +338,9 @@ hero_bullets = pygame.sprite.Group()
 enemy_bullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
+all_cells = pygame.sprite.Group()
 droped_weapon = []
-room = Room('f-r.txt')
+room = Room('f-r_s.txt')
 hero = MainHero((room.tile_width + 1, room.tile_height + 1))
 game = Game(room, hero)
 camera = Camera()
