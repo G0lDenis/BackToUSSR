@@ -221,6 +221,7 @@ class MainHero(Character):
             self.weapons.append(Weapon(*loadings.load_weapon(weap_id)))
 
     def shoot(self, go_to):
+        shot.play()
         delta_x = go_to[0] - self.rect.centerx
         delta_y = go_to[1] - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
@@ -281,6 +282,7 @@ class Enemy(Character):
         invis.kill()
 
     def shoot(self):
+        shot.play()
         delta_x = hero.rect.centerx - self.rect.centerx
         delta_y = hero.rect.centery - self.rect.centery
         rad = math.sqrt(delta_x ** 2 + delta_y ** 2)
@@ -343,6 +345,9 @@ class Camera:
 
 
 pygame.init()
+pygame.mixer.music.load('music/kalinka.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(50)
 FPS = 20
 size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
@@ -355,6 +360,8 @@ enemy_bullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 invent = pygame.sprite.Group()
 all_cells = pygame.sprite.Group()
+shot = pygame.mixer.Sound('music/shot.mp3')
+put = pygame.mixer.Sound('music/put.mp3')
 droped_weapon = []
 data = loadings.load_results()
 if not int(data[0][0]):
@@ -371,14 +378,12 @@ for i in range(5):
         enemy.kill()
         enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
 if int(data[0][0]) == 1:
-    print('+++++++++')
     weap = Weapon(*loadings.load_weapon(2))
     weap.spr.kill()
     weap.drop(randrange(width), randrange(height))
     while pygame.sprite.spritecollideany(weap.sm_spr, obstacles):
         weap.sm_spr.kill()
         weap.drop(randrange(width), randrange(height))
-    print('------------')
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
@@ -417,7 +422,8 @@ def run_game():
                             go = math.sqrt(square_go_x + square_go_y)
                         else:
                             go = 15
-                        if go <= 20:
+                        if go <= 100:
+                            put.play()
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
                             if len(hero.weapons) < 3:
                                 invent.remove(hero.weapons[hero.slot_number].spr)

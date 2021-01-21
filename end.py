@@ -2,7 +2,6 @@ import sys
 import pygame
 import pygame_widgets as pw
 from subprocess import call
-import time
 
 
 def terminate():
@@ -47,6 +46,5 @@ def show_btn():
 
 
 def restart():
-    terminate()
     call(["python", "main.py"])
     pygame.quit()
