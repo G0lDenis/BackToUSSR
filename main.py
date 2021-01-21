@@ -6,6 +6,7 @@ import os
 import math
 from random import randrange, uniform
 from end import lose
+from titles_beg import start_titles
 
 
 def terminate():
@@ -77,6 +78,10 @@ class Weapon:
         self.sm_spr.rect = self.spr.image.get_rect()
 
     def drop(self, x, y):
+        im = pygame.transform.scale(self.img, (self.img.get_width() // 3, self.img.get_height() // 3))
+        self.sm_spr = pygame.sprite.Sprite()
+        self.sm_spr.image = im.convert_alpha()
+        self.sm_spr.rect = self.spr.image.get_rect()
         all_sprites.add(self.sm_spr)
         self.sm_spr.rect.x, self.sm_spr.rect.y = x, y
         droped_weapon.append([hero.weapons[hero.slot_number], hero.rect.x, hero.rect.y])
@@ -212,13 +217,8 @@ class MainHero(Character):
             lose()
 
     def load_weapon(self):
-        con = sqlite3.connect('weapons.db')
-        cur = con.cursor()
         for weap_id in data[1][0].split():
-            weap = list(cur.execute(f'''select title, damage, radius, image, velocity from weapons
-                                        where id={weap_id}''').fetchone())
-            weap[3] = loadings.load_image(weap[3])
-            self.weapons.append(Weapon(*weap))
+            self.weapons.append(Weapon(*loadings.load_weapon(weap_id)))
 
     def shoot(self, go_to):
         shot.play()
@@ -364,7 +364,10 @@ shot = pygame.mixer.Sound('music/shot.mp3')
 put = pygame.mixer.Sound('music/put.mp3')
 droped_weapon = []
 data = loadings.load_results()
-room = Room(int(data[0][0]))
+if not int(data[0][0]):
+    start_titles()
+    data[0][0] = int(data[0][0]) + 1
+room = Room(data[0][0])
 hero = MainHero((room.tile_width + 1, room.tile_height + 1))
 game = Game(room, hero)
 camera = Camera()
@@ -374,9 +377,17 @@ for i in range(5):
             hero.rect):
         enemy.kill()
         enemy = Enemy((randrange(room.width * room.tile_width), randrange(room.height * room.tile_height)), i)
+if int(data[0][0]) == 1:
+    weap = Weapon(*loadings.load_weapon(2))
+    weap.spr.kill()
+    weap.drop(randrange(width), randrange(height))
+    while pygame.sprite.spritecollideany(weap.sm_spr, obstacles):
+        weap.sm_spr.kill()
+        weap.drop(randrange(width), randrange(height))
 pygame.display.flip()
 hero.weapons[hero.slot_number].draw()
 clock = pygame.time.Clock()
+
 
 def run_game():
     hero.hp = 100
@@ -403,7 +414,6 @@ def run_game():
                         hero.slot_number -= 1
                         hero.weapons[hero.slot_number].draw()
                 elif ev.key == pygame.K_f:
-                    print(droped_weapon)
                     for i in range(len(droped_weapon)):
                         if droped_weapon[i][0].sm_spr.rect.x - hero.rect.x != 0 and \
                                 droped_weapon[i][0].sm_spr.rect.y - hero.rect.y != 0:
@@ -412,7 +422,6 @@ def run_game():
                             go = math.sqrt(square_go_x + square_go_y)
                         else:
                             go = 15
-                        print(go)
                         if go <= 100:
                             put.play()
                             all_sprites.remove(droped_weapon[i][0].sm_spr)
