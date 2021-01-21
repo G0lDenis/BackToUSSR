@@ -238,11 +238,12 @@ class Enemy(Character):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         self.check_shooting = pygame.USEREVENT + n + 2
-        pygame.time.set_timer(self.check_shooting, 300)
+        pygame.time.set_timer(self.check_shooting, 700)
 
     def update_enemy(self):
-        if pygame.event.peek(
-                self.check_shooting) and 0 <= self.rect.x <= width - self.rect.w and 0 <= self.rect.y <= height - self.rect.h:
+        delta_x = hero.rect.centerx - self.rect.centerx
+        delta_y = hero.rect.centery - self.rect.centery
+        if pygame.event.peek(self.check_shooting) and math.sqrt(delta_x ** 2 + delta_y ** 2) <= 600:
             pygame.event.get(self.check_shooting)
             self.check()
         if self.shooting:
@@ -421,4 +422,6 @@ def run_game():
         game.render()
         pygame.display.flip()
         clock.tick(FPS)
+
+
 run_game()

@@ -14,12 +14,10 @@ def load_results():
     with open('res.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=',', quotechar='"')
         data = list(reader)
-    print(data)
     return data
 
 
 def load_map(map_id):
-    print(os.path.join('Maps', 'maps.db'))
     con = sqlite3.connect(os.path.join('Maps', 'maps.db'))
     cur = con.cursor()
     map_name = cur.execute(f'''select way from maps where id={map_id}''').fetchone()[0]
