@@ -3,6 +3,7 @@ import pygame
 import pygame_widgets as pw
 from subprocess import call
 
+
 def terminate():
     pygame.quit()
     sys.exit()
