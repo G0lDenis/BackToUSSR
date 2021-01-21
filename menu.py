@@ -1,8 +1,7 @@
 import sys
 import pygame
 import pygame_widgets as pw
-from main import run_game as rg
-
+from subprocess import call
 
 def terminate():
     pygame.quit()
@@ -14,20 +13,21 @@ size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Back To USSR')
 img = pygame.image.load("images\menu_back.jpg")
+img = pygame.transform.scale(img, (1024, 768))
 font = pygame.font.SysFont('tahoma', 36)
 button_play = pw.Button(
-    screen, 80, 300, 300, 50, text='Играть',
+    screen, 340, 220, 300, 50, text='Играть',
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
-    onClick=lambda: rg(),
+    onClick=lambda: call(["python", "main.py"]),
     textColour=(255, 214, 3),
     hoverColour=(160, 0, 1),
     font=font,
     textHAlign='centre'
 )
 button_settings = pw.Button(
-    screen, 820, 300, 300, 50, text='Настройки',
+    screen, 340, 400, 300, 50, text='Настройки',
     fontSize=50,
     inactiveColour=(180, 0, 1),
     pressedColour=(180, 0, 1),
